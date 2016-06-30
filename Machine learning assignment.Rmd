@@ -1,0 +1,56 @@
+Machine learning assignment  
+
+Executive summary 
+=================
+This report is  about predicting human activities, say a forearm curl. We intend to build a model to predict which session could be classified as good and labeled A or not then B,C,D,or E, in the variable classe with five levels (A,B,C,D,E).
+We have abuilt a support vector machine, and then assess the model accuracy while tuning cross parameter.
+---
+downloading data
+``` 
+training.csv = download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv",
+                        destfile = "D:/R/Data/Machine learning/training.csv")
+testing.csv = download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv",
+                            destfile = "D:/R/Data/Machine learning/testing.csv")
+```
+```{r}
+train = read.csv("D:/R/Data/Machine learning/training.csv")
+test = read.csv("D:/R/Data/Machine learning/testing.csv")
+acc_var = grep("^acc",names(train))
+gyro_var = grep("^gyros",names(train))
+train= train[,c(acc_var,gyro_var,160)]
+test =  test[,c(acc_var,gyro_var,160)]
+rm(acc_var,gyro_var)
+```
+Including library
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+
+library(e1071)
+```
+features selection  :  
+------------------    
+Here we have selected acceleration and gyration because these features 
+quantify kinematics of a given motion. 
+
+``` {r, echo = FALSE}
+
+train = read.csv("D:/R/Data/Machine learning/training.csv")
+test = read.csv("D:/R/Data/Machine learning/testing.csv")
+Var = grep("^acc|^gyro",names(train))
+train = train[,c(Var,160)]
+test = test[,c(Var,160)]
+```
+Building model :      
+-------------   
+We have built our, from the default settings. Then we tune it step by step. we've first fixed gamma and used a sequence of k-folds ranging from 1 to to 10. There was a slice improvement in the total accuracy. However, when holding, k fixed to 5 and varying gamma, from default to .1, total accuracy improved from 83 % to 93 .4 %. However, one may prefer to use tune function or best.tune over svm model object to achieve this purpose.  
+
+```{r}
+set.seed (1)
+svm.fit = svm(classe~.,data = train,gamma = .1,cross = 5)
+summary(svm.fit)
+table(predict(svm.fit,test))
+```
+ Conclusion :  
+============        
+Our model, has a total accuracy of 93.4 % and predicted 80% of the 20 cases in test data set.
+
